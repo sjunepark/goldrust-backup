@@ -3,12 +3,12 @@
 //! A minimal golden file testing library for Rust,
 //! when golden files are required for external api requests.
 //!
-//! ## Warning & Disclaimer
+//! # Warning & Disclaimer
 //! Currently intended for _personal use_, and has the following limitations:
 //! - Be aware that the design is very messy and not scalable.
 //! - This is just the initial published version, and the API is not stable.
 //!
-//! ## When to use
+//! # When to use
 //!
 //! This crate is intended to be used in the situation below:
 //!
@@ -23,7 +23,7 @@
 //! 1. in constrained environments when you can't make actual external requests,
 //! 2. when the external api server is unavailable.
 //!
-//! ## Testing logic
+//! # Testing logic
 //!
 //! In the case which fits the [When to use](#when-to-use) section, you can use the following logic:
 //!
@@ -41,11 +41,11 @@
 //!    2. When a golden file exists and no update is required,
 //!       serve the golden file for mock responses
 //!
-//! ## Async
+//! # Async
 //!
 //! Only supports async, as was intended to be used in relevance to http request mocking.
 //!
-//! ## Usage
+//! # Usage
 //!
 //! Check the examples folder for a full example.
 
