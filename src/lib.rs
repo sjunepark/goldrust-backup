@@ -55,7 +55,7 @@ use std::io::{Error, Write};
 use std::path::Path;
 
 #[derive(Debug)]
-pub struct GoldRust<P>
+pub struct Goldrust<P>
 where
     P: AsRef<Path> + std::fmt::Debug + Clone,
 {
@@ -64,7 +64,7 @@ where
     golden_file_path: P,
 }
 
-impl<P> GoldRust<P>
+impl<P> Goldrust<P>
 where
     P: AsRef<Path> + std::fmt::Debug + Clone,
 {
@@ -84,7 +84,7 @@ where
             allow_external_api_call,
             update_golden_files,
             golden_file_path = ?golden_file_path,
-            "Initialising GoldRust"
+            "Initialising Goldrust"
         );
 
         Self {

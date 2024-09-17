@@ -1,4 +1,4 @@
-//! This example demonstrates how to use GoldRust to test a simple GET request.
+//! This example demonstrates how to use Goldrust to test a simple GET request.
 //! In similar scenarios, you will have to consider the following:
 //! - A mock server should intercept requests: You can make your request function accept a domain parameter.
 //!   This parameter can be set to the mock server uri when running tests.
@@ -13,7 +13,7 @@ async fn main() {
 
 #[cfg(test)]
 mod tests {
-    use goldrust::{get_test_id, GoldRust};
+    use goldrust::{get_test_id, Goldrust};
     use std::path::Path;
     use std::sync::Arc;
     use tokio::sync::Mutex;
@@ -31,7 +31,7 @@ mod tests {
         tracing::debug!(test_id = ?test_id, "Running test");
 
         let golden_file_path = format!("examples/{}.json", test_id);
-        let goldrust = GoldRust::new(golden_file_path.clone());
+        let goldrust = Goldrust::new(golden_file_path.clone());
         let mock_server = MockServer::start().await;
 
         // The domain will be used to create future requests
