@@ -1,10 +1,5 @@
 //! This example demonstrates how to use Goldrust to test a simple GET request.
-//! In similar scenarios, you will have to consider the following:
-//! - A mock server should intercept requests: You can make your request function accept a domain parameter.
-//!   This parameter can be set to the mock server uri when running tests.
-//! - The mock server should serve the golden file for mock responses.
-//! - When a golden file does not exist, or an update is required (via the `GOLDRUST_UPDATE_GOLDEN_FILES` env var),
-//!   an external api request has to be made, and the response body should be saved to the golden file.
+//! The⭐️s indicate where manual implementation is required.
 
 use goldrust::{Goldrust, ResponseSource};
 use std::path::Path;
@@ -16,6 +11,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 async fn base() {
     tracing_subscriber::fmt::fmt()
         .with_env_filter(EnvFilter::from_default_env())
+        .pretty()
         .init();
 
     let goldrust = Goldrust::default();
@@ -26,9 +22,10 @@ async fn base() {
     let mut domain: Option<String> = None;
     let url_path = "/api/actual";
 
+    // ⭐️ Implement the corresponding logic for each case
     match goldrust.response_source {
         ResponseSource::Local => {
-            tracing::info!("Running run_when_local");
+            tracing::info!("Running branch ResponseSource::Local");
 
             // ⭐️ Set the domain to the mock server uri
             domain = Some(mock_server.uri());
@@ -41,7 +38,7 @@ async fn base() {
                 .await;
         }
         ResponseSource::External => {
-            tracing::info!("Running run_when_local");
+            tracing::info!("Running branch ResponseSource::External");
 
             // ⭐️ Set the domain to the mock server uri
             domain = Some("https://some-external-api.com".to_string());
@@ -78,9 +75,6 @@ async fn base() {
 #[tracing::instrument]
 fn create_response_template<P: AsRef<Path> + std::fmt::Debug>(path: P) -> ResponseTemplate {
     let path = path.as_ref();
-    tracing::debug!(path = ?path);
-    let abs_path = path.canonicalize().expect("Failed to canonicalize path");
-    tracing::debug!(abs_path = ?abs_path);
     let body = std::fs::read_to_string(path).expect("Failed to read file");
     ResponseTemplate::new(200).set_body_string(body)
 }

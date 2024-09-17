@@ -23,3 +23,6 @@ test name="":
 
 example name="":
     cargo run --example {{name}}
+
+doc:
+    cargo doc --no-deps --open
