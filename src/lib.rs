@@ -6,7 +6,7 @@
 //! ## Warning & Disclaimer
 //! Currently intended for _personal use_, and has the following limitations:
 //! - Be aware that the design is very messy and not scalable.
-//! - Will go through breaking changes and doesn’t respect semver.
+//! - This is just the initial published version, and the API is not stable.
 //!
 //! ## When to use
 //!
