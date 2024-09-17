@@ -1,3 +1,54 @@
+//! # Introduction
+//!
+//! A minimal golden file testing library for Rust,
+//! when golden files are required for external api requests.
+//!
+//! ## Warning & Disclaimer
+//! Currently intended for _personal use_, and has the following limitations:
+//! - Be aware that the design is very messy and not scalable.
+//! - Will go through breaking changes and doesn’t respect semver.
+//!
+//! ## When to use
+//!
+//! This crate is intended to be used in the situation below:
+//!
+//! - You're sending external api requests in your library/binary.
+//! - You want to mock the responses for testing purposes.
+//! - You want to create the mocks based on the actual responses.
+//!     - As so, you want to make actual api requests,
+//!     - then save these to golden files mocking.
+//!
+//! The logic above ensures that your mocks are based on actual external api responses
+//! but also allows testing
+//! 1. in constrained environments when you can't make actual external requests,
+//! 2. when the external api server is unavailable.
+//!
+//! ## Testing logic
+//!
+//! In the case which fits the [When to use](#when-to-use) section, you can use the following logic:
+//!
+//! 1. Create a mock server which intercepts requests
+//! - Your function, which sends external api requests, should accept a domain parameter,
+//!   so it can be injected as a dependency.
+//!   You can set this domain as:
+//!   - In production: The actual domain
+//!   - In tests: The mock server uri
+//! 2. Serve the mock response:
+//!    1. When a golden file does not exist
+//!       (or an update is required via the `GOLDRUST_UPDATE_GOLDEN_FILES` env var):
+//!       1. Create an external api request
+//!       2. Save the response body to the golden file
+//!    2. When a golden file exists and no update is required,
+//!       serve the golden file for mock responses
+//!
+//! ## Async
+//!
+//! Only supports async, as was intended to be used in relevance to http request mocking.
+//!
+//! ## Usage
+//!
+//! Check the examples folder for a full example.
+
 use std::fs::OpenOptions;
 use std::future::Future;
 use std::io::{Error, Write};
