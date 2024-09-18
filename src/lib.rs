@@ -154,7 +154,7 @@ impl Goldrust {
     ///
     /// This method should be called when required,
     /// or Goldrust will panic when dropped.
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, content))]
     pub fn save<T>(&mut self, content: T) -> Result<(), Error>
     where
         T: serde::Serialize,
