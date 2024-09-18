@@ -128,7 +128,6 @@ impl Default for Goldrust {
         tracing::trace!(?update_golden_files);
 
         let save_check = !update_golden_files;
-        tracing::trace!(?save_check);
 
         let response_source = response_source(
             allow_external_api_call,
@@ -152,13 +151,14 @@ impl Goldrust {
     /// This method should be called when required,
     /// or Goldrust will panic when dropped.
     #[tracing::instrument(skip(self))]
-    pub fn save<T>(&self, content: T) -> Result<(), Error>
+    pub fn save<T>(&mut self, content: T) -> Result<(), Error>
     where
         T: serde::Serialize,
         for<'de> T: serde::Deserialize<'de>,
         T: std::fmt::Debug,
     {
         if !self.update_golden_files {
+            self.save_check = true;
             tracing::debug!("Golden files should not be updated, skipping save");
             return Ok(());
         }
@@ -170,6 +170,8 @@ impl Goldrust {
             .open(&self.golden_file_path)?;
 
         serde_json::to_writer_pretty(file, &content)?;
+
+        self.save_check = true;
         Ok(())
     }
 }
