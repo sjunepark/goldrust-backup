@@ -100,20 +100,19 @@ pub struct Goldrust {
     /// which was automatically generated based on the thread name of the test
     pub golden_file_path: PathBuf,
     pub response_source: ResponseSource,
-    save_check: bool,
+    pub save_check: bool,
 }
 
 impl Default for Goldrust {
-    #[tracing::instrument]
     /// Create a new instance of GoldrustBuilder
     ///
     /// A new instance of Goldrust should be created for each test.
     ///
     /// Golden file names are based on the thread name of the test.
     /// (e.g. `test::test_name` → `test-test_name.json`)
+    #[tracing::instrument]
     fn default() -> Self {
         let golden_file_dir = std::env::var("GOLDRUST_DIR").unwrap_or("tests/golden".to_string());
-        tracing::trace!(?golden_file_dir);
         let test_id = std::thread::current()
             .name()
             .expect("Thread should have a name. Threads don't have names by default when they are created with `thread::Builder::spawn`")
@@ -122,19 +121,16 @@ impl Default for Goldrust {
             .join("-")
             .to_string();
         let golden_file_path = Path::new(&golden_file_dir).join(format!("{}.json", test_id));
-        tracing::trace!(?golden_file_path);
 
         let allow_external_api_call: bool = std::env::var("GOLDRUST_ALLOW_EXTERNAL_API_CALL")
             .unwrap_or("true".to_string())
             .parse()
             .expect("GOLDRUST_ALLOW_EXTERNAL_API_CALL must be parseable as a boolean");
-        tracing::trace!(?allow_external_api_call);
 
         let update_golden_files: bool = std::env::var("GOLDRUST_UPDATE_GOLDEN_FILES")
             .unwrap_or("true".to_string())
             .parse()
             .expect("GOLDRUST_UPDATE_GOLDEN_FILES must be a boolean");
-        tracing::trace!(?update_golden_files);
 
         let save_check = !update_golden_files;
 
@@ -143,7 +139,6 @@ impl Default for Goldrust {
             update_golden_files,
             golden_file_path.as_ref(),
         );
-        tracing::trace!(?response_source);
 
         Self {
             update_golden_files,
@@ -166,21 +161,22 @@ impl Goldrust {
         for<'de> T: serde::Deserialize<'de>,
         T: std::fmt::Debug,
     {
+        self.save_check = true;
         if !self.update_golden_files {
-            self.save_check = true;
             tracing::debug!("Golden files should not be updated, skipping save");
             return Ok(());
         }
-        tracing::debug!("Saving content to file");
         let file = OpenOptions::new()
             .write(true)
             .create(true)
             .truncate(true)
-            .open(&self.golden_file_path)?;
+            .open(&self.golden_file_path)
+            .inspect_err(|_e| tracing::error!(?self.golden_file_path, "Error opening file"))?;
+        let file_fmt = format!("{:?}", self.golden_file_path);
 
-        serde_json::to_writer_pretty(file, &content)?;
+        serde_json::to_writer_pretty(file, &content)
+            .inspect_err(|_e| tracing::error!(file = file_fmt, "Error writing content to file"))?;
 
-        self.save_check = true;
         Ok(())
     }
 }
