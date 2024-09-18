@@ -5,8 +5,8 @@
 //!
 //! # Warning & Disclaimer
 //! Currently intended for _personal use_, and has the following limitations:
-//! - Be aware that the design is very messy and not scalable.
-//! - This is just the initial published version, and the API is not stable.
+//! - The API is not stable.
+//! - The library could be appropriate only for specific use cases.
 //!
 //! # When to use
 //!
@@ -47,7 +47,9 @@
 //!
 //! # Usage
 //!
-//! Check the examples folder for a full example.
+//! Check `tests/base.rs` for a full example.
+//! Instead of giving a detailed implementation on how tests should be set,
+//! this library provides a `ResponseSource` enum for the library user to use.
 //!
 //! ## Requirements
 //!
@@ -84,7 +86,6 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct Goldrust {
-    allow_external_api_call: bool,
     update_golden_files: bool,
     /// The path to the golden file,
     /// which was automatically generated based on the thread name of the test
@@ -137,7 +138,6 @@ impl Default for Goldrust {
         tracing::trace!(?response_source);
 
         Self {
-            allow_external_api_call,
             update_golden_files,
             golden_file_path,
             response_source,
@@ -214,6 +214,8 @@ fn response_source(
     response_source
 }
 
+/// This ensures that the content is saved to the golden file
+/// when an update is required.
 impl Drop for Goldrust {
     fn drop(&mut self) {
         if !self.save_check {

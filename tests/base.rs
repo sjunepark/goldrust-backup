@@ -18,35 +18,28 @@ async fn base() {
 
     let mock_server = MockServer::start().await;
 
-    // The domain will be used to create future requests
-    let mut domain: Option<String> = None;
+    // ⭐️ Set the domain to the mock server uri
+    let domain = match goldrust.response_source {
+        ResponseSource::Local => mock_server.uri(),
+        ResponseSource::External => "https://some-external-api.com".to_string(),
+    };
+
     let url_path = "/api/actual";
 
-    // ⭐️ Implement the corresponding logic for each case
+    // ⭐️ Configure the mock server to return a local response
     match goldrust.response_source {
         ResponseSource::Local => {
-            tracing::info!("Running branch ResponseSource::Local");
-
-            // ⭐️ Set the domain to the mock server uri
-            domain = Some(mock_server.uri());
-
-            // ⭐️ Configure the mock server to return a local response
             Mock::given(method("GET"))
                 .and(path(url_path))
                 .respond_with(create_response_template(&goldrust.golden_file_path))
                 .mount(&mock_server)
                 .await;
         }
-        ResponseSource::External => {
-            tracing::info!("Running branch ResponseSource::External");
-
-            // ⭐️ Set the domain to the mock server uri
-            domain = Some("https://some-external-api.com".to_string());
-        }
+        ResponseSource::External => {}
     }
 
     let response = reqwest::Client::new()
-        .get(&format!("{}{}", domain.expect("domain not set"), url_path))
+        .get(format!("{}{}", domain, url_path))
         .send()
         .await
         .expect("Failed to send request");

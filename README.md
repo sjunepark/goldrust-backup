@@ -13,3 +13,8 @@ Currently intended for _personal use_, and has the following limitations:
 ## Documentation
 
 For detailed documentation, check [crates.io](https://docs.rs/goldrust/latest/goldrust/)
+
+## Todo
+
+- Update documentation to match the current commit.
+- Implement common traits for public structs.
