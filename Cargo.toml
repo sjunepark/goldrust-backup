@@ -1,7 +1,7 @@
 [package]
 name = "goldrust"
 description = "A Rust library for testing HTTP clients with golden files."
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 repository = "https://github.com/sjunepark/goldrust"
 license = "MIT"
