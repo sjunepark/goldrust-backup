@@ -80,11 +80,20 @@
 //!   (Having to pass down the golden file name
 //!   and track each seemed like an unnecessary complexity for now)
 //!
+
+mod impl_check;
+
+use derive_more::Display;
+use serde::{Deserialize, Serialize};
 use std::fs::OpenOptions;
 use std::io::Error;
 use std::path::{Path, PathBuf};
 
-#[derive(Debug)]
+assert_impl_commons!(Goldrust);
+assert_impl_commons_without_default!(ResponseSource);
+
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Serialize, Deserialize, Display)]
+#[display("{update_golden_files}, {golden_file_path:?}, {response_source}, {save_check}")]
 pub struct Goldrust {
     update_golden_files: bool,
     /// The path to the golden file,
@@ -132,7 +141,7 @@ impl Default for Goldrust {
         let response_source = response_source(
             allow_external_api_call,
             update_golden_files,
-            golden_file_path.exists(),
+            golden_file_path.as_ref(),
         );
         tracing::trace!(?response_source);
 
@@ -183,8 +192,10 @@ impl Goldrust {
 fn response_source(
     allow_external_api_call: bool,
     update_golden_files: bool,
-    golden_file_exists: bool,
+    golden_file_path: &Path,
 ) -> ResponseSource {
+    let golden_file_exists = golden_file_path.exists();
+
     let response_source: ResponseSource = match (
         allow_external_api_call,
         update_golden_files,
@@ -194,7 +205,7 @@ fn response_source(
             panic!("Cannot update golden files without allowing external API calls")
         }
         (false, false, false) => {
-            panic!("Cannot test without allowing external API calls when golden files do not exist")
+            panic!("Cannot test without allowing external API calls when golden files do not exist, create file: {}", golden_file_path.display())
         }
         (false, false, true) => {
             tracing::debug!("Use local golden files without making external API calls");
@@ -226,7 +237,8 @@ impl Drop for Goldrust {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Serialize, Deserialize, Display)]
+#[display("{_variant}")]
 pub enum ResponseSource {
     Local,
     External,
@@ -234,12 +246,20 @@ pub enum ResponseSource {
 
 #[cfg(test)]
 mod tests {
-    use tracing_subscriber::EnvFilter;
+    use super::*;
 
     #[test]
-    fn examples_test() {
-        tracing_subscriber::fmt::fmt()
-            .with_env_filter(EnvFilter::from_default_env())
-            .init();
+    fn display_goldrust() {
+        let goldrust = Goldrust::default();
+        assert_eq!(
+            format!("{}", goldrust),
+            format!(
+                "{}, {:?}, {}, {}",
+                goldrust.update_golden_files,
+                goldrust.golden_file_path,
+                goldrust.response_source,
+                goldrust.save_check
+            )
+        );
     }
 }
