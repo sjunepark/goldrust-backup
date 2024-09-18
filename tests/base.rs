@@ -14,7 +14,7 @@ async fn base() {
         .pretty()
         .init();
 
-    let goldrust = Goldrust::default();
+    let mut goldrust = Goldrust::default();
 
     let mock_server = MockServer::start().await;
 
@@ -31,7 +31,10 @@ async fn base() {
         ResponseSource::Local => {
             Mock::given(method("GET"))
                 .and(path(url_path))
-                .respond_with(create_response_template(&goldrust.golden_file_path))
+                .respond_with({
+                    tracing::debug!("Responding with local file");
+                    create_response_template(&goldrust.golden_file_path)
+                })
                 .mount(&mock_server)
                 .await;
         }
@@ -52,6 +55,8 @@ async fn base() {
     }
     // The response body
     let response_body: Data = response.json().await.expect("Failed to get bytes");
+    tracing::debug!(?response_body, "Response body");
+
     let golden_file_text =
         std::fs::read_to_string(&goldrust.golden_file_path).expect("Failed to read golden file");
 

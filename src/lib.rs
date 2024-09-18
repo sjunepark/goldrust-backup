@@ -197,19 +197,19 @@ fn response_source(
             panic!("Cannot test without allowing external API calls when golden files do not exist")
         }
         (false, false, true) => {
-            tracing::trace!("Use local golden files without making external API calls");
+            tracing::debug!("Use local golden files without making external API calls");
             ResponseSource::Local
         }
         (true, false, false) => {
-            tracing::trace!("Use external API without updating golden files");
+            tracing::debug!("Use external API without updating golden files");
             ResponseSource::External
         }
         (true, false, true) => {
-            tracing::trace!("Use local golden files without making external API calls, even though external API calls are allowed");
+            tracing::debug!("Use local golden files without making external API calls, even though external API calls are allowed");
             ResponseSource::Local
         }
         (true, true, _) => {
-            tracing::trace!("Use external API calls and update golden files");
+            tracing::debug!("Use external API calls and update golden files");
             ResponseSource::External
         }
     };
