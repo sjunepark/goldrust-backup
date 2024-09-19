@@ -92,6 +92,19 @@ use std::path::{Path, PathBuf};
 assert_impl_commons_without_default!(Goldrust);
 assert_impl_commons_without_default!(ResponseSource);
 
+/// Create a new instance of Goldrust.
+///
+/// A new instance of Goldrust should be created for each test.
+///
+/// The configurations are based on the environment variables:
+/// - `GOLDRUST_DIR`: The directory where the golden files will be saved.
+///    Defaults to `tests/golden`
+/// - `GOLDRUST_ALLOW_EXTERNAL_API_CALL`: Whether external api calls are allowed.
+/// - `GOLDRUST_UPDATE_GOLDEN_FILES`: Whether golden files should be updated.
+///
+/// Even if `GOLDRUST_ALLOW_EXTERNAL_API_CALL` is set to `true`,
+/// the default behavior is to use local golden files without making external API calls,
+/// which is the preferred behavior for testing.
 #[macro_export]
 macro_rules! goldrust {
     () => {
