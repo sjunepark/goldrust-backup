@@ -182,7 +182,6 @@ impl Goldrust {
         for<'de> T: serde::Deserialize<'de>,
         T: std::fmt::Debug,
     {
-        tracing::trace!("Running save");
         self.save_check = true;
         if !self.update_golden_files {
             tracing::debug!("Golden files should not be updated, skipping save");
@@ -198,6 +197,7 @@ impl Goldrust {
 
         serde_json::to_writer_pretty(file, &content)
             .inspect_err(|_e| tracing::error!(file = file_fmt, "Error writing content to file"))?;
+        tracing::debug!(?self.golden_file_path, "Saved content to golden file");
 
         Ok(())
     }
