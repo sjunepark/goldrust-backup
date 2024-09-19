@@ -169,6 +169,7 @@ impl Goldrust {
         for<'de> T: serde::Deserialize<'de>,
         T: std::fmt::Debug,
     {
+        tracing::trace!("Running save");
         self.save_check = true;
         if !self.update_golden_files {
             tracing::debug!("Golden files should not be updated, skipping save");
@@ -236,7 +237,7 @@ fn response_source(
 impl Drop for Goldrust {
     fn drop(&mut self) {
         if !self.save_check {
-            panic!("should save content to golden file. Call the `save` method");
+            panic!("Should save item to golden file.\nEven if you've called the `save` methods, it might not be executing due to prior early returns, etc.")
         }
     }
 }
