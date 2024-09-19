@@ -230,7 +230,7 @@ fn response_source(
             ResponseSource::Local
         }
         (true, false, false) => {
-            tracing::debug!("Use external API without updating golden files");
+            tracing::warn!("Use external API without updating golden files");
             ResponseSource::External
         }
         (true, false, true) => {
@@ -238,7 +238,7 @@ fn response_source(
             ResponseSource::Local
         }
         (true, true, _) => {
-            tracing::debug!("Use external API calls and update golden files");
+            tracing::warn!("Use external API calls and update golden files");
             ResponseSource::External
         }
     };
