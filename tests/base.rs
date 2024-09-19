@@ -1,7 +1,7 @@
 //! This example demonstrates how to use Goldrust to test a simple GET request.
 //! The⭐️s indicate where manual implementation is required.
 
-use goldrust::{Goldrust, ResponseSource};
+use goldrust::{goldrust, Goldrust, ResponseSource};
 use std::path::Path;
 use tracing_subscriber::EnvFilter;
 use wiremock::matchers::{method, path};
@@ -14,7 +14,7 @@ async fn base() {
         .pretty()
         .init();
 
-    let mut goldrust = Goldrust::default();
+    let mut goldrust = goldrust!();
 
     let mock_server = MockServer::start().await;
 

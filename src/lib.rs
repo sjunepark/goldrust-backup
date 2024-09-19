@@ -89,8 +89,25 @@ use std::fs::OpenOptions;
 use std::io::Error;
 use std::path::{Path, PathBuf};
 
-assert_impl_commons!(Goldrust);
+assert_impl_commons_without_default!(Goldrust);
 assert_impl_commons_without_default!(ResponseSource);
+
+#[macro_export]
+macro_rules! goldrust {
+    () => {
+        Goldrust::new({
+            fn f() {}
+            fn type_name_of_val<T>(_: T) -> &'static str {
+                std::any::type_name::<T>()
+            }
+            let mut name = type_name_of_val(f).strip_suffix("::f").unwrap_or("");
+            while let Some(rest) = name.strip_suffix("::{{closure}}") {
+                name = rest;
+            }
+            &name.replace("::", "-")
+        })
+    };
+}
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Serialize, Deserialize, Display)]
 #[display("{update_golden_files}, {golden_file_path:?}, {response_source}, {save_check}")]
@@ -103,7 +120,7 @@ pub struct Goldrust {
     pub save_check: bool,
 }
 
-impl Default for Goldrust {
+impl Goldrust {
     /// Create a new instance of GoldrustBuilder
     ///
     /// A new instance of Goldrust should be created for each test.
@@ -111,16 +128,9 @@ impl Default for Goldrust {
     /// Golden file names are based on the thread name of the test.
     /// (e.g. `test::test_name` → `test-test_name.json`)
     #[tracing::instrument]
-    fn default() -> Self {
+    pub fn new(function_name: &str) -> Self {
         let golden_file_dir = std::env::var("GOLDRUST_DIR").unwrap_or("tests/golden".to_string());
-        let test_id = std::thread::current()
-            .name()
-            .expect("Thread should have a name. Threads don't have names by default when they are created with `thread::Builder::spawn`")
-            .split("::")
-            .collect::<Vec<_>>()
-            .join("-")
-            .to_string();
-        let golden_file_path = Path::new(&golden_file_dir).join(format!("{}.json", test_id));
+        let golden_file_path = Path::new(&golden_file_dir).join(format!("{}.json", function_name));
 
         let allow_external_api_call: bool = std::env::var("GOLDRUST_ALLOW_EXTERNAL_API_CALL")
             .unwrap_or("true".to_string())
@@ -147,9 +157,7 @@ impl Default for Goldrust {
             save_check,
         }
     }
-}
 
-impl Goldrust {
     /// Save content to the golden file
     ///
     /// This method should be called when required,
@@ -246,7 +254,7 @@ mod tests {
 
     #[test]
     fn display_goldrust() {
-        let goldrust = Goldrust::default();
+        let goldrust = goldrust!();
         assert_eq!(
             format!("{}", goldrust),
             format!(
