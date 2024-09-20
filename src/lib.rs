@@ -250,7 +250,7 @@ fn response_source(
 impl Drop for Goldrust {
     fn drop(&mut self) {
         if !self.save_check {
-            panic!("Should save item to golden file.\nEven if you've called the `save` methods, it might not be executing due to prior early returns, etc.")
+            tracing::error!("Should save item to golden file.\nEven if you've called the `save` methods, it might not be executing due to prior early returns, etc.");
         }
     }
 }
