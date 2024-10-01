@@ -35,10 +35,12 @@ jobs:
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
-      - name: cargo test
-        run: cargo test --locked --workspace --all-features --all-targets
-      - name: cargo test --doc
-        run: cargo test --doc --locked --workspace --all-features # [cargo test --all-targets does not run doc tests](https://github.com/rust-lang/cargo/issues/6669)
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
+      - run: cargo nextest run --locked --workspace --all-features --all-targets
+        # Nextest currently [doesn't support doctests](https://github.com/nextest-rs/nextest/issues/16)
+        # For `cargo test`, there's a issue that [cargo test --all-targets does not run doc tests](https://github.com/rust-lang/cargo/issues/6669)
+      - run: cargo test --doc --locked --workspace --all-features
   update:
     # This action checks that updating the dependencies of this crate to the latest available
     # that satisfy the versions in Cargo.toml does not break this crate.
@@ -60,8 +62,9 @@ jobs:
       - name: cargo update
         if: hashFiles('Cargo.lock') != ''
         run: cargo update
-      - name: cargo test
-        if: hashFiles('Cargo.lock') != ''
-        run: cargo test --locked --workspace --all-features --all-targets
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
+      - if: hashFiles('Cargo.lock') != ''
+        run: cargo nextest run --locked --workspace --all-features --all-targets
         env:
           RUSTFLAGS: -D deprecated
