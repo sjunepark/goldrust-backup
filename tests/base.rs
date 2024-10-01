@@ -63,11 +63,17 @@ async fn base() {
     // The response body should match the golden file
     assert_eq!(
         serde_json::to_string(&response_body).expect("Failed to serialize"),
-        golden_file_text.replace(" ", "").replace("\n", "")
+        normalize_json(&golden_file_text)
     );
 
     // ⭐️ Using the closure to save content to the golden file
     goldrust.save(response_body).expect("Failed to save");
+}
+
+fn normalize_json(json: &str) -> String {
+    json.replace("\r\n", "\n")
+        .replace(" ", "")
+        .replace("\n", "")
 }
 
 #[tracing::instrument]
