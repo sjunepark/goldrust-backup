@@ -1,3 +1,9 @@
+env:
+  RUST_LOG: ${{ vars.RUST_LOG }}
+  GOLDRUST_DIR: ${{ vars.GOLDRUST_DIR }}
+  GOLDRUST_ALLOW_EXTERNAL_API_CALL: ${{ vars.GOLDRUST_ALLOW_EXTERNAL_API_CALL }}
+  GOLDRUST_UPDATE_GOLDEN_FILES: ${{ vars.GOLDRUST_UPDATE_GOLDEN_FILES }}
+
 # Run scheduled (rolling) jobs on a nightly basis, as your crate may break independently of any
 # given PR. E.g., updates to rust nightly and updates to this crates dependencies. See check.yml for
 # information about how the concurrency cancellation and workflow triggering works

@@ -1,3 +1,9 @@
+env:
+  RUST_LOG: ${{ vars.RUST_LOG }}
+  GOLDRUST_DIR: ${{ vars.GOLDRUST_DIR }}
+  GOLDRUST_ALLOW_EXTERNAL_API_CALL: ${{ vars.GOLDRUST_ALLOW_EXTERNAL_API_CALL }}
+  GOLDRUST_UPDATE_GOLDEN_FILES: ${{ vars.GOLDRUST_UPDATE_GOLDEN_FILES }}
+
 # This is the main CI workflow that runs the test suite on all pushes to main and all pull requests.
 # It runs the following jobs:
 # - required: runs the test suite on ubuntu with stable and beta rust toolchains
@@ -10,7 +16,7 @@ permissions:
   contents: read
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -24,7 +30,7 @@ jobs:
       matrix:
         # run on stable and beta to ensure that tests won't break on the next version of the rust
         # toolchain
-        toolchain: [stable, beta]
+        toolchain: [ stable, beta ]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -89,7 +95,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [ macos-latest, windows-latest ]
     steps:
       # if your project needs OpenSSL, uncomment this to fix Windows builds.
       # it's commented out by default as the install command takes 5-10m.
