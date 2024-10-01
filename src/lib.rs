@@ -142,7 +142,8 @@ impl Goldrust {
     /// (e.g. `test::test_name` → `test-test_name.json`)
     #[tracing::instrument]
     pub fn new(function_name: &str) -> Self {
-        let golden_file_dir = std::env::var("GOLDRUST_DIR").unwrap_or("tests/golden".to_string());
+        let golden_file_dir =
+            std::env::var("GOLDRUST_DIR").unwrap_or("tests/resources/golden".to_string());
         let golden_file_path = Path::new(&golden_file_dir).join(format!("{}.json", function_name));
 
         let allow_external_api_call: bool = std::env::var("GOLDRUST_ALLOW_EXTERNAL_API_CALL")
@@ -230,7 +231,7 @@ fn response_source(
             ResponseSource::Local
         }
         (true, false, false) => {
-            tracing::warn!("Use external API without updating golden files");
+            tracing::debug!("Use external API without updating golden files");
             ResponseSource::External
         }
         (true, false, true) => {
@@ -238,7 +239,7 @@ fn response_source(
             ResponseSource::Local
         }
         (true, true, _) => {
-            tracing::warn!("Use external API calls and update golden files");
+            tracing::debug!("Use external API calls and update golden files");
             ResponseSource::External
         }
     };
