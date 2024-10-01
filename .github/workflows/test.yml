@@ -89,7 +89,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest ]
+        # Removed `windows-latest` due to `libsql-sys` not being compatible.
+        # [Related issue](https://github.com/tursodatabase/libsql/issues/1763)
+        os: [ macos-latest ]
     steps:
       # if your project needs OpenSSL, uncomment this to fix Windows builds.
       # it's commented out by default as the install command takes 5-10m.
@@ -146,12 +148,15 @@ jobs:
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
       - name: cargo llvm-cov
-        run: cargo llvm-cov --locked --all-features --lcov --output-path lcov.info
+        # Use nextest as default.
+        # You can use `--codecov` to use region coverage, but [the way Codecov shows region/branch coverage is not very good.](https://github.com/taiki-e/cargo-llvm-cov/pull/255#issuecomment-1513318191)
+        run: cargo llvm-cov nextest --locked --workspace --all-features --lcov --output-path lcov.info
       - name: Record Rust version
         run: echo "RUST=$(rustc --version)" >> "$GITHUB_ENV"
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v4
         with:
+          files: "lcov.info"
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS,RUST
