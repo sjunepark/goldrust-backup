@@ -1,3 +1,6 @@
+env:
+  RUST_LOG: ${{ vars.RUST_LOG }}
+
 # This workflow checks whether the library is able to run without the std library (e.g., embedded).
 # This entire file should be removed if this crate does not support no-std. See check.yml for
 # information about how the concurrency cancellation and workflow triggering works
@@ -5,7 +8,7 @@ permissions:
   contents: read
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -17,7 +20,7 @@ jobs:
     name: ${{ matrix.target }}
     strategy:
       matrix:
-        target: [thumbv7m-none-eabi, aarch64-unknown-none]
+        target: [ thumbv7m-none-eabi, aarch64-unknown-none ]
     steps:
       - uses: actions/checkout@v4
         with:

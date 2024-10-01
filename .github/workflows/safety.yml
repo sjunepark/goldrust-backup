@@ -1,3 +1,6 @@
+env:
+  RUST_LOG: ${{ vars.RUST_LOG }}
+
 # This workflow runs checks for unsafe code. In crates that don't have any unsafe code, this can be
 # removed. Runs:
 # - miri - detects undefined behavior and memory leaks
@@ -9,7 +12,7 @@ permissions:
   contents: read
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -25,20 +28,20 @@ jobs:
       - name: Install nightly
         uses: dtolnay/rust-toolchain@nightly
       - run: |
-            # to get the symbolizer for debug symbol resolution
-            sudo apt install llvm
-            # to fix buggy leak analyzer:
-            # https://github.com/japaric/rust-san#unrealiable-leaksanitizer
-            # ensure there's a profile.dev section
-            if ! grep -qE '^[ \t]*[profile.dev]' Cargo.toml; then
-                echo >> Cargo.toml
-                echo '[profile.dev]' >> Cargo.toml
-            fi
-            # remove pre-existing opt-levels in profile.dev
-            sed -i '/^\s*\[profile.dev\]/,/^\s*\[/ {/^\s*opt-level/d}' Cargo.toml
-            # now set opt-level to 1
-            sed -i '/^\s*\[profile.dev\]/a opt-level = 1' Cargo.toml
-            cat Cargo.toml
+          # to get the symbolizer for debug symbol resolution
+          sudo apt install llvm
+          # to fix buggy leak analyzer:
+          # https://github.com/japaric/rust-san#unrealiable-leaksanitizer
+          # ensure there's a profile.dev section
+          if ! grep -qE '^[ \t]*[profile.dev]' Cargo.toml; then
+              echo >> Cargo.toml
+              echo '[profile.dev]' >> Cargo.toml
+          fi
+          # remove pre-existing opt-levels in profile.dev
+          sed -i '/^\s*\[profile.dev\]/,/^\s*\[/ {/^\s*opt-level/d}' Cargo.toml
+          # now set opt-level to 1
+          sed -i '/^\s*\[profile.dev\]/a opt-level = 1' Cargo.toml
+          cat Cargo.toml
         name: Enable debug symbols
       - name: cargo test -Zsanitizer=address
         # only --lib --tests b/c of https://github.com/rust-lang/rust/issues/53945

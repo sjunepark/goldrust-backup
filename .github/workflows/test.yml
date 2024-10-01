@@ -1,3 +1,6 @@
+env:
+  RUST_LOG: ${{ vars.RUST_LOG }}
+
 # This is the main CI workflow that runs the test suite on all pushes to main and all pull requests.
 # It runs the following jobs:
 # - required: runs the test suite on ubuntu with stable and beta rust toolchains
