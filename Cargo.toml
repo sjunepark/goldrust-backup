@@ -1,7 +1,7 @@
 [package]
 name = "goldrust"
 description = "A Rust library for testing HTTP clients with golden files."
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 #rust-version = "1.76.0" # In order to use `insepct_err`
 repository = "https://github.com/sjunepark/goldrust"
