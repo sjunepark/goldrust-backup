@@ -27,8 +27,10 @@ jobs:
       - name: cargo generate-lockfile
         if: hashFiles('Cargo.lock') == ''
         run: cargo generate-lockfile
-      - name: cargo test --locked
-        run: cargo test --locked --all-features --all-targets
+      - name: cargo install nextest
+        uses: taiki-e/install-action@nextest
+      - name: cargo nextest run
+        run: cargo nextest run --locked --workspace --all-features --all-targets
   # https://twitter.com/alcuadrado/status/1571291687837732873
   update:
     # This action checks that updating the dependencies of this crate to the latest available that
@@ -51,8 +53,10 @@ jobs:
       - name: cargo update
         if: hashFiles('Cargo.lock') != ''
         run: cargo update
-      - name: cargo test
+      - name: cargo install nextest
+        uses: taiki-e/install-action@nextest
+      - name: cargo nextest run
         if: hashFiles('Cargo.lock') != ''
-        run: cargo test --locked --all-features --all-targets
+        run: cargo nextest run --locked --workspace --all-features --all-targets
         env:
           RUSTFLAGS: -D deprecated
