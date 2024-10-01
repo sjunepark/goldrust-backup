@@ -53,7 +53,7 @@ jobs:
           submodules: true
       - name: Install beta
         if: hashFiles('Cargo.lock') != ''
-        uses: dtolnay/rust-toolchain@beta
+        uses: dtolnay/rust-toolchain@stable
       - name: cargo update
         if: hashFiles('Cargo.lock') != ''
         run: cargo update
