@@ -60,10 +60,10 @@
 //!   - Defaults to `tests/golden`.
 //! - `GOLDRUST_ALLOW_EXTERNAL_API_CALL`: `bool`
 //!   - Whether external api calls are allowed.
-//!   - Defaults to `true`.
+//!   - Defaults to `false`.
 //! - `GOLDRUST_UPDATE_GOLDEN_FILES`: `bool`
 //!   - Whether golden files should be updated.
-//!   - Defaults to `true`.
+//!   - Defaults to `false`.
 //!
 //! Some combinations are invariant and will panic:
 //! (for example, you can't update golden files without allowing external api calls).
@@ -147,12 +147,12 @@ impl Goldrust {
         let golden_file_path = Path::new(&golden_file_dir).join(format!("{}.json", function_name));
 
         let allow_external_api_call: bool = std::env::var("GOLDRUST_ALLOW_EXTERNAL_API_CALL")
-            .unwrap_or("true".to_string())
+            .unwrap_or("false".to_string())
             .parse()
             .expect("GOLDRUST_ALLOW_EXTERNAL_API_CALL must be parseable as a boolean");
 
         let update_golden_files: bool = std::env::var("GOLDRUST_UPDATE_GOLDEN_FILES")
-            .unwrap_or("true".to_string())
+            .unwrap_or("false".to_string())
             .parse()
             .expect("GOLDRUST_UPDATE_GOLDEN_FILES must be a boolean");
 
