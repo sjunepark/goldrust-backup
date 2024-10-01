@@ -5,10 +5,10 @@ permissions:
   contents: read
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
   schedule:
-    - cron:  '7 7 * * *'
+    - cron: '7 7 * * *'
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
@@ -47,7 +47,7 @@ jobs:
           submodules: true
       - name: Install beta
         if: hashFiles('Cargo.lock') != ''
-        uses: dtolnay/rust-toolchain@beta
+        uses: dtolnay/rust-toolchain@stable
       - name: cargo update
         if: hashFiles('Cargo.lock') != ''
         run: cargo update
