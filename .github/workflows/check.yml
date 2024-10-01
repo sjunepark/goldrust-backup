@@ -1,35 +1,41 @@
+# This workflow runs whenever a PR is opened or updated, or a commit is pushed to main.
+# It runs several checks:
+# - fmt: checks that the code is formatted according to rustfmt
+# - clippy: checks that the code does not contain any clippy warnings
+# - semver: checks that the code is semver compatible
+# - doc: checks that the code can be documented without errors
+# - hack: check combinations of feature flags
+# - msrv: check that the msrv(minimal supported rust version) specified in the crate is correct
+
+name: check
+
 env:
   RUST_LOG: ${{ vars.RUST_LOG }}
   GOLDRUST_DIR: ${{ vars.GOLDRUST_DIR }}
   GOLDRUST_ALLOW_EXTERNAL_API_CALL: ${{ vars.GOLDRUST_ALLOW_EXTERNAL_API_CALL }}
   GOLDRUST_UPDATE_GOLDEN_FILES: ${{ vars.GOLDRUST_UPDATE_GOLDEN_FILES }}
 
-# This workflow runs whenever a PR is opened or updated, or a commit is pushed to main. It runs
-# several checks:
-# - fmt: checks that the code is formatted according to rustfmt
-# - clippy: checks that the code does not contain any clippy warnings
-# - doc: checks that the code can be documented without errors
-# - hack: check combinations of feature flags
-# - msrv: check that the msrv specified in the crate is correct
 permissions:
   contents: read
-# This configuration allows maintainers of this repo to create a branch and pull request based on
-# the new branch. Restricting the push trigger to the main branch ensures that the PR only gets
-# built once.
+
+# This configuration allows maintainers of this repo to create a branch and pull request based on the new branch.
+# Restricting the push trigger to the main branch ensures that the PR only gets built once.
+# It's recommended to push to a feature branch or a dev branch, and then create a PR from that branch to main.
 on:
   push:
     branches: [ main ]
   pull_request:
-# If new code is pushed to a PR branch, then cancel in progress workflows for that PR. Ensures that
-# we don't waste CI time, and returns results quicker https://github.com/jonhoo/rust-ci-conf/pull/5
+
+# If new code is pushed to a PR branch, then cancel in progress workflows for that PR.
+# Ensures that we don't waste CI time and returns results quicker
+# ref: https://github.com/jonhoo/rust-ci-conf/pull/5
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-name: check
 jobs:
   fmt:
-    runs-on: ubuntu-latest
     name: stable / fmt
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,19 +44,18 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
-      - name: cargo fmt --check
-        run: cargo fmt --check
+      - run: cargo fmt --all --check
   clippy:
-    runs-on: ubuntu-latest
     name: ${{ matrix.toolchain }} / clippy
-    permissions:
-      contents: read
-      checks: write
     strategy:
       fail-fast: false
       matrix:
         # Get early warning of new lints which are regularly introduced in beta channels.
         toolchain: [ stable, beta ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -65,23 +70,10 @@ jobs:
         with:
           reporter: 'github-pr-check'
           github_token: ${{ secrets.GITHUB_TOKEN }}
-  semver:
-    runs-on: ubuntu-latest
-    name: semver
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Install stable
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt
-      - name: cargo-semver-checks
-        uses: obi1kenobi/cargo-semver-checks-action@v2
   doc:
-    # run docs generation on nightly rather than stable. This enables features like
-    # https://doc.rust-lang.org/beta/unstable-book/language-features/doc-cfg.html which allows an
-    # API be documented as only available in some specific platforms.
+    # run doc generation on nightly rather than stable. This enables features like
+    # <https://doc.rust-lang.org/beta/unstable-book/language-features/doc-cfg.html>
+    # that allow an API to be documented as only available in some specific platforms.
     runs-on: ubuntu-latest
     name: nightly / doc
     steps:
@@ -92,10 +84,17 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
       - name: Install cargo-docs-rs
         uses: dtolnay/install@cargo-docs-rs
-      - name: cargo docs-rs
-        run: cargo docs-rs
+      - name: 'Setup jq'
+        uses: dcarbone/install-jq-action@v2
+      - name: Build docs for all crates
+        run: |
+          crates=$(cargo metadata --no-deps --format-version=1 | jq -r '.workspace_members[]')
+          for crate in $crates; do
+            echo "Building docs for $crate"
+            cargo docs-rs -p $crate
+          done
   hack:
-    # cargo-hack checks combinations of feature flags to ensure that features are all additive
+    # cargo-hack checks combinations of feature flags to ensure that features are all additive,
     # which is required for feature unification
     runs-on: ubuntu-latest
     name: ubuntu / stable / features
@@ -110,9 +109,9 @@ jobs:
       # intentionally no target specifier; see https://github.com/jonhoo/rust-ci-conf/pull/4
       # --feature-powerset runs for every combination of features
       - name: cargo hack
-        run: cargo hack --feature-powerset check
+        run: cargo hack --workspace --feature-powerset check
   msrv:
-    # check that we can build using the minimal rust version that is specified by this crate
+    name: ubuntu / ${{ matrix.msrv }}
     runs-on: ubuntu-latest
     # we use a matrix here just because env can't be used in job names
     # https://docs.github.com/en/actions/learn-github-actions/contexts#context-availability
@@ -121,7 +120,6 @@ jobs:
         # `inspect_err` was stabilized in 1.76.0.
         # [#116866](https://github.com/rust-lang/rust/pull/116866)
         msrv: [ "1.76.0" ]
-    name: ubuntu / ${{ matrix.msrv }}
     steps:
       - uses: actions/checkout@v4
         with:
