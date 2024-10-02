@@ -11,9 +11,6 @@ name: check
 
 env:
   RUST_LOG: ${{ vars.RUST_LOG }}
-  GOLDRUST_DIR: ${{ vars.GOLDRUST_DIR }}
-  GOLDRUST_ALLOW_EXTERNAL_API_CALL: ${{ vars.GOLDRUST_ALLOW_EXTERNAL_API_CALL }}
-  GOLDRUST_UPDATE_GOLDEN_FILES: ${{ vars.GOLDRUST_UPDATE_GOLDEN_FILES }}
 
 permissions:
   contents: read
@@ -32,6 +29,7 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
+
 jobs:
   fmt:
     name: stable / fmt
@@ -129,4 +127,4 @@ jobs:
         with:
           toolchain: ${{ matrix.msrv }}
       - name: cargo +${{ matrix.msrv }} check
-        run: cargo check
+        run: cargo check --workspace --all-features --all-targets
