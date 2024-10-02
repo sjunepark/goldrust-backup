@@ -45,7 +45,7 @@ jobs:
         run: cargo generate-lockfile
       - name: cargo install nextest
         uses: taiki-e/install-action@nextest
-      - run: cargo nextest run --locked --workspace --all-feature's --all-targets
+      - run: cargo nextest run --locked --workspace --all-features --all-targets
         # Nextest currently [doesn't support doctests](https://github.com/nextest-rs/nextest/issues/16)
         # For `cargo test`, there's an issue that [cargo test --all-targets does not run doc tests](https://github.com/rust-lang/cargo/issues/6669)
       - run: cargo test --doc --locked --workspace --all-features
