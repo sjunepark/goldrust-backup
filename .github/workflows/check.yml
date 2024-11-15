@@ -83,7 +83,7 @@ jobs:
       - name: Install cargo-docs-rs
         uses: dtolnay/install@cargo-docs-rs
       - name: 'Setup jq'
-        uses: dcarbone/install-jq-action@v2
+        uses: dcarbone/install-jq-action@v3
       - name: Build docs for all crates
         run: |
           crates=$(cargo metadata --no-deps --format-version=1 | jq -r '.workspace_members[]')
